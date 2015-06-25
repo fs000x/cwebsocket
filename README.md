@@ -15,7 +15,6 @@ With this library you can turn your Arduino to websocket server and get realtime
 ### Not supported
 * [secure websocket](http://tools.ietf.org/html/rfc6455#section-3)
 * [websocket extensions](http://tools.ietf.org/html/rfc6455#section-9)
-* [websocket subprotocols](http://tools.ietf.org/html/rfc6455#section-1.9)
 * [status codes](http://tools.ietf.org/html/rfc6455#section-7.4) 
 * [cookies and/or authentication-related header fields](http://tools.ietf.org/html/rfc6455#page-19)
 * [continuation frame](http://tools.ietf.org/html/rfc6455#section-11.8) (all payload data must be encapsulated into one websocket frame)
