@@ -1,2 +1,5 @@
-/build/
-/dist/
+*.o
+*.a
+*.so
+*.out
+*.exe
