@@ -131,7 +131,8 @@ void clientWorker(int clientSocket)
             assert(frameType == WS_OPENING_FRAME);
             if (frameType == WS_OPENING_FRAME) {
                 // if resource is right, generate answer handshake and send it
-                if (strcmp(hs.resource, "/echo") != 0) {
+                if (((hs.resource)&&(strcmp(hs.resource, "/echo") != 0)) 
+					&& ((hs.protocol)&&(strcmp(hs.protocol, "echo") != 0))) {
                     frameSize = sprintf((char *)gBuffer, "HTTP/1.1 404 Not Found\r\n\r\n");
                     safeSend(clientSocket, gBuffer, frameSize);
                     break;

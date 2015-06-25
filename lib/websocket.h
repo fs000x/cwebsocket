@@ -94,6 +94,7 @@ struct handshake {
     char *origin;
     char *key;
     char *resource;
+    char *protocol;
     enum wsFrameType frameType;
 };
 

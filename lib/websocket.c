@@ -27,15 +27,22 @@ static char rn[] PROGMEM = "\r\n";
 
 void nullHandshake(struct handshake *hs)
 {
+    if (!hs)
+        return;
+
     hs->host = NULL;
     hs->origin = NULL;
     hs->resource = NULL;
     hs->key = NULL;
+    hs->protocol = NULL;
     hs->frameType = WS_EMPTY_FRAME;
 }
 
 void freeHandshake(struct handshake *hs)
 {
+    if (!hs)
+        return;
+
     if (hs->host) {
         free(hs->host);
     }
@@ -47,6 +54,9 @@ void freeHandshake(struct handshake *hs)
     }
     if (hs->key) {
         free(hs->key);
+    }
+    if (hs->protocol) {
+        free(hs->protocol);
     }
     nullHandshake(hs);
 }
@@ -117,6 +127,8 @@ enum wsFrameType wsParseHandshake(const uint8_t *inputFrame, size_t inputLength,
         } else
         if (memcmp_P(inputPtr, protocolField, strlen_P(protocolField)) == 0) {
             inputPtr += strlen_P(protocolField);
+            prepare(hs->protocol);
+            hs->protocol = getUptoLinefeed(inputPtr);
             subprotocolFlag = TRUE;
         } else
         if (memcmp_P(inputPtr, keyField, strlen_P(keyField)) == 0) {
@@ -157,8 +169,7 @@ enum wsFrameType wsParseHandshake(const uint8_t *inputFrame, size_t inputLength,
     }
 
     // we have read all data, so check them
-    if (!hs->host || !hs->key || !connectionFlag || !upgradeFlag || subprotocolFlag
-        || versionMismatch)
+    if (!hs->host || !hs->key || !connectionFlag || !upgradeFlag || versionMismatch)
     {
         hs->frameType = WS_ERROR_FRAME;
     } else {
@@ -190,12 +201,23 @@ void wsGetHandshakeAnswer(const struct handshake *hs, uint8_t *outFrame,
                             PSTR("HTTP/1.1 101 Switching Protocols\r\n"
                                  "%s%s\r\n"
                                  "%s%s\r\n"
-                                 "Sec-WebSocket-Accept: %s\r\n\r\n"),
+                                 "Sec-WebSocket-Accept: %s\r\n"),
                             upgradeField,
                             websocket,
                             connectionField,
                             upgrade2,
                             responseKey);
+    if (hs->protocol)
+    {
+        strcat(outFrame, protocolField);
+		written += strlen(protocolField);
+        strcat(outFrame, hs->protocol);
+		written += strlen(hs->protocol);
+        strcat(outFrame, "\r\n");
+		written += strlen("\r\n");
+    }
+    strcat(outFrame, "\r\n");
+	written += strlen("\r\n");
 	
     free(responseKey);
     // if assert fail, that means, that we corrupt memory
